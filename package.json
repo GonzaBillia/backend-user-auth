@@ -1,0 +1,24 @@
+{
+  "name": "backend-user-auth",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch --no-warnings ./src/index.js",
+    "start": "node ./src/index.js",
+    "stop-windows": "taskkill /F /IM node.exe",
+    "stop-linux": "killall -9 node",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.5.1",
+    "morgan": "^1.10.0"
+  }
+}
