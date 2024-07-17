@@ -12,7 +12,7 @@ router.get('/tasks/:id', authRequired, getTask)
 
 router.post('/tasks', authRequired, validateSchema(createTaskSchema), createTask)
 
-router.put('/tasks/:id', authRequired, updateTask)
+router.put('/task/:id', authRequired, updateTask)
 
 router.delete('/tasks/:id', authRequired, deleteTask)
 

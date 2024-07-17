@@ -1,6 +1,8 @@
 import User from "../models/user.model.js"
 import bcrypt from "bcryptjs"
 import { createAccessToken } from "../libs/jwt.js"
+import jwt from "jsonwebtoken"
+import { TOKEN_SECRET } from "../config/config.js"
 
 export const register = async (req, res) => {
     const {username, email, password} = req.body
@@ -33,7 +35,7 @@ export const register = async (req, res) => {
         })
 
     } catch (error) {
-        res.status(500).send(error.message)
+        res.status(500).send([error.message])
     }
 }
 
@@ -45,17 +47,21 @@ export const login = async (req, res) => {
         const userFound = await User.findOne({email})
 
         if(!userFound) {
-            return res.status(400).send("User not found")
+            return res.status(400).send(["User not found"])
         }
 
         const isMatch = await bcrypt.compare(password, userFound.password)
 
         if(!isMatch){
-            return res.status(400).send("Wrong password")
+            return res.status(400).send(["Wrong password"])
         }
 
         const token = await createAccessToken({id: userFound._id})
-        res.cookie('token', token)
+        res.cookie('token', token, {
+            sameSite: 'none',
+            secure: true,
+            httpOnly: false
+        })
         res.send({
             id: userFound._id,
             username: userFound.username,
@@ -64,7 +70,7 @@ export const login = async (req, res) => {
         })
 
     } catch (error) {
-        res.status(500).send(error.message)
+        res.status(500).send([error.message])
     }
 }
 
@@ -73,7 +79,7 @@ export const logout = async (req, res) => {
         res.cookie('token', '', {expires: new Date(0)})
         return res.sendStatus(200)
     } catch (error) {
-        return res.status(500).send(error.message)
+        return res.status(500).send([error.message])
     }
 }
 
@@ -81,7 +87,7 @@ export const profile = async (req, res) => {
     try {
         const userFound = await User.findById(req.user.id)
 
-        if(!userFound) return res.status(404).send("User not found")
+        if(!userFound) return res.status(404).send(["User not found"])
 
         return res.send({
             id: userFound._id,
@@ -89,6 +95,26 @@ export const profile = async (req, res) => {
             email: userFound.email
         })
     } catch (error) {
-        res.status(500).send(error.message)
+        res.status(500).send([error.message])
     }
+}
+
+export const verifyToken = async (req, res) => {
+    const { token } = req.cookies
+
+    if(!token) return res.status(401).send(["Unauthorized"])
+    
+    jwt.verify(token, TOKEN_SECRET, async(err, payload) => {
+        if(err) return res.status(401).send(["Unauthorized"])
+
+        const userFound = await User.findById(payload.id)
+
+        if(!userFound) return res.status(401).send(["Unauthorized"])
+
+        return res.send({
+            id: userFound._id,
+            username: userFound.username,
+            email: userFound.email
+        })
+    })
 }

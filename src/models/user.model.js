@@ -18,7 +18,15 @@ const userSchema = new Schema({
         required: true
     }
 }, {timestamps: true,
-    virtuals: true
+    toJSON: {virtuals: true}
+})
+
+//Relacion Virtual
+userSchema.virtual("tasks", {
+    ref: "tasks",
+    localField: "_id",
+    foreignField: "users",
+    justOne: false
 })
 
 export default model("users", userSchema)
