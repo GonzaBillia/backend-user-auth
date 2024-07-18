@@ -10,6 +10,7 @@ const app = express()
 
 app.use(cors({
     credentials: true,
+    origin: 'https://gonzabillia.github.io/client-user-auth/'
 }))
 app.use(morgan('dev'))
 app.use(cookieParser())
